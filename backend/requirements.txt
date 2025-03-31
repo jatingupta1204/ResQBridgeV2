@@ -1,0 +1,17 @@
+Flask
+Flask-Cors
+Flask-SQLAlchemy
+flask_jwt_extended
+Flask_migrate
+Werkzeug
+ultralytics
+opencv-python
+numpy
+Pillow
+onnx
+onnxruntime-gpu
+cloudinary
+whisper
+transformers
+vosk
+pydub
