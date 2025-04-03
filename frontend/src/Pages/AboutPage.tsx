@@ -3,11 +3,9 @@ import { Header } from "../components/Header";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Shield, Clock, Award } from "lucide-react";
 
 export default function AboutPage() {
   return (

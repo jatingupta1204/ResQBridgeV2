@@ -37,8 +37,6 @@ export default function SOSPage() {
   const [cameraActive, setCameraActive] = useState(false);
 
   // Additional states.
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [isSending, setIsSending] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(10);
   const [autoSubmitTimer, setAutoSubmitTimer] = useState<NodeJS.Timeout | null>(null);
   const [description, setDescription] = useState<string>(
@@ -120,12 +118,10 @@ export default function SOSPage() {
       recorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: "audio/mp3" });
         setAudioBlob(blob);
-        setIsRecording(false);
         audioStream.getTracks().forEach((track) => track.stop());
       };
   
       recorder.start(); // Start recording without a timeslice.
-      setIsRecording(true);
       setTimeout(() => {
         if (recorder.state !== "inactive") recorder.stop();
       }, 10000);
@@ -250,7 +246,6 @@ export default function SOSPage() {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setSosSent(true);
-    setIsSending(true);
     if (autoSubmitTimer) {
       clearInterval(autoSubmitTimer);
       setAutoSubmitTimer(null);
@@ -261,7 +256,6 @@ export default function SOSPage() {
       const accidentInfo = await verifyAccident();
       if (!accidentInfo.accidentDetected) {
         alert("No accident detected from the photo evidence. SOS alert not sent.");
-        setIsSending(false);
         setSosSent(false);
         isSubmittingRef.current = false;
         return;
@@ -316,8 +310,6 @@ export default function SOSPage() {
       alert("Error reporting SOS: " + err.message);
       setSosSent(false); // Allow reattempt on error
       isSubmittingRef.current = false;
-    } finally {
-      setIsSending(false);
     }
   };
 
@@ -336,10 +328,16 @@ export default function SOSPage() {
     }
   };
 
-  // Trigger auto submission.
-  const initiateSOS = () => {
-    // startAutoTimer();
-  };
+  // If there is an error, display it.
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <Alert className="bg-red-50 border-red-200">
+          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -447,91 +445,89 @@ export default function SOSPage() {
                           setUploadedVideo(e.target.files[0]);                        
                         }                      
                       }}                    
-                      />                    
-                      <Button variant="secondary" 
-                      onClick={() => document.getElementById("upload-video")?.click()}>                      
-                      Choose Video                    
-                      </Button>                    
-                      {uploadedVideo && <p className="mt-2 text-sm">
-                        {uploadedVideo.name}</p>}                  
-                        </div>                
-                        </TabsContent>                
-                        <TabsContent value="webcam">                  
-                          <div className="mt-4">                   
-                            {!cameraActive && !capturedImage && (                      
-                              <Button                        
-                              onClick={startCamera}                        
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3"                        
-                              size="lg"                      
-                              >                        
-                              <Camera className="mr-2 h-6 w-6" />                        
-                              Use Webcam                      
-                              </Button>                    
-                              )}                    
-                              {cameraActive && (                      
-                                <div className="space-y-4">                        
-                                <div className="relative rounded-xl overflow-hidden bg-black">                          
-                                  <video                            
-                                  ref={videoRef}                            
-                                  autoPlay                            
-                                  playsInline                            
-                                  className="w-full h-64 object-cover"                          
-                                  />                          
-                                  <div className="absolute bottom-2 inset-x-0 flex justify-center gap-2">                            
-                                    <Button                              
-                                    onClick={captureImage}                              
-                                    size="sm"                              
-                                    className="bg-white text-blue-600 hover:bg-blue-100 rounded-xl"                           
-                                    >                             
-                                    <Camera className="h-4 w-4" />                            
-                                    </Button>                            
-                                    <Button                             
-                                    onClick={resetCamera}                              
-                                    size="sm"                             
-                                    variant="destructive"                              
-                                    className="rounded-xl"                            
-                                    >                              
-                                    <X className="h-4 w-4" />                            
-                                    </Button>                          
-                                    </div>                        
-                                    </div>                      
-                                    </div>                    
-                                    )}                    
-                                    {capturedImage && (                      
-                                      <div className="relative">                        
-                                      <img                          
-                                      src={capturedImage}                          
-                                      alt="Captured"                          
-                                      className="w-full h-64 object-cover rounded-xl shadow-lg"                        
-                                      />                        
-                                      <Button                         
-                                      onClick={resetCamera}                          
-                                      size="sm"                          
-                                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 rounded-xl"                        
-                                      >                          
-                                      <X className="h-4 w-4" />                        
-                                      </Button>                      
-                                      </div>                    
-                                      )}                  
-                                      </div>                
-                                      </TabsContent>              
-                                      </Tabs>              
-                                      {/* Media upload status */}              
-                                      <div className="mt-6">                
-                                        {(uploadedPhoto || capturedImage || uploadedVideo) && (                  
-                                          <Alert className="bg-green-50 border-green-200">                    
-                                          <AlertDescription className="text-green-800">                      
-                                            {uploadedPhoto || capturedImage ? "✓ Photo ready" : ""}                      
-                                            {uploadedVideo ? "✓ Video ready" : ""}                      
-                                              {severity ? ` - Severity: ${severity}` : ""}                    
-                                              </AlertDescription>                  
-                                              </Alert>                
-                                              )}              
-                                              </div>            
-                                              </div>          
-                                              </div>        
-                                              </div>      
-                                              </div>    
-                                              </>  
+                    />                    
+                    <Button variant="secondary" onClick={() => document.getElementById("upload-video")?.click()}>
+                      Choose Video
+                    </Button>                    
+                    {uploadedVideo && <p className="mt-2 text-sm">{uploadedVideo.name}</p>}                  
+                  </div>
+                </TabsContent>
+                <TabsContent value="webcam">
+                  <div className="mt-4">
+                    {!cameraActive && !capturedImage && (
+                      <Button
+                        onClick={startCamera}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3"
+                        size="lg"
+                      >
+                        <Camera className="mr-2 h-6 w-6" />
+                        Use Webcam
+                      </Button>
+                    )}
+                    {cameraActive && (
+                      <div className="space-y-4">
+                        <div className="relative rounded-xl overflow-hidden bg-black">
+                          <video
+                            ref={videoRef}
+                            autoPlay
+                            playsInline
+                            className="w-full h-64 object-cover"
+                          />
+                          <div className="absolute bottom-2 inset-x-0 flex justify-center gap-2">
+                            <Button
+                              onClick={captureImage}
+                              size="sm"
+                              className="bg-white text-blue-600 hover:bg-blue-100 rounded-xl"
+                            >
+                              <Camera className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={resetCamera}
+                              size="sm"
+                              variant="destructive"
+                              className="rounded-xl"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {capturedImage && (
+                      <div className="relative">
+                        <img
+                          src={capturedImage}
+                          alt="Captured"
+                          className="w-full h-64 object-cover rounded-xl shadow-lg"
+                        />
+                        <Button
+                          onClick={resetCamera}
+                          size="sm"
+                          className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 rounded-xl"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+              {/* Media upload status */}
+              <div className="mt-6">
+                {(uploadedPhoto || capturedImage || uploadedVideo) && (
+                  <Alert className="bg-green-50 border-green-200">
+                    <AlertDescription className="text-green-800">
+                      {uploadedPhoto || capturedImage ? "✓ Photo ready" : ""}
+                      {uploadedVideo ? "✓ Video ready" : ""}
+                      {severity ? ` - Severity: ${severity}` : ""}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

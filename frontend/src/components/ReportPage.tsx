@@ -1,4 +1,10 @@
-// ReportPage.tsx
+// At the top of your file, declare the "google" property on window.
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -31,7 +37,7 @@ import { Header } from "@/components/Header";
 import { AlertTriangle } from "lucide-react";
 import { createIncident } from "@/api";
 
-const GOOGLE_MAPS_API_KEY = "";
+const GOOGLE_MAPS_API_KEY = ""; // Add your API key here
 
 // Hook to dynamically load the Google Maps API script
 function useLoadGoogleMaps(apiKey: string) {
@@ -74,8 +80,6 @@ export default function ReportPage() {
       contact: "",
     },
   });
-
-  const emergencyType = form.watch("type");
 
   // Get user's location on mount
   useEffect(() => {

@@ -15,8 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, Gift, Award, Loader2 } from "lucide-react";
+import { Heart, Gift, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export default function CrowdsourcingPage() {

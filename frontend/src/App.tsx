@@ -18,7 +18,6 @@ import {
   Clock,
   MapPin,
   Heart,
-  ArrowRight,
   ExternalLink,
 } from "lucide-react";
 import { Link } from "react-router-dom";
